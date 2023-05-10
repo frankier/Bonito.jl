@@ -49,8 +49,14 @@ function find_proxy_in_environment()
         # Possibly not working anymore, but used to be used in e.g. nextjournal for the proxy url
         return ENV["JULIA_WEBIO_BASEURL"]
     elseif haskey(ENV, "BINDER_SERVICE_HOST")
-        # binder
-        return port -> ENV["BINDER_SERVICE_HOST"] * "proxy/$port"
+        # Binder
+        # Any information containing the host does not seem to be of
+        # use, because they are bare IP addresses, which appear to be on an
+        # internal network (10.*.*.*).
+        # No environment variables contain the external hostname e.g. hub.ovh2.mybinder.org
+        # Therefore we return a relative URL using JUPYTERHUB_SERVICE_PREFIX
+        # Example JUPYTERHUB_SERVICE_PREFIX = "/user/username-wglmakie_binder-4l4rirae/"
+        return port -> ENV["JUPYTERHUB_SERVICE_PREFIX"] * "proxy/$port"
     elseif haskey(ENV, "JPY_SESSION_NAME") && haskey(Base.loaded_modules, IJULIA_PKG_ID)
         # Jupyterhub works differently!
         # TODO, is JPY_SESSION_NAME reliably in the env for Jupyterlab? So far it seems so!
